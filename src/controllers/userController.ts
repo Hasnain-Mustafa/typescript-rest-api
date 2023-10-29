@@ -1,11 +1,27 @@
+import express from 'express';
 import { UserModel } from '../models/userSchema';
 
 export const getUsers = async () => {
-  await UserModel.find();
+  return await UserModel.find();
+};
+
+export const getAllUsers = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const users = await getUsers();
+    return res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({ message: 'No users found' });
+  }
 };
 
 export const getUserByEmail = async (email: string) => {
-  return await UserModel.findOne({ email });
+  return await UserModel.findOne({ email }).select(
+    '+authentication.password +authentication.salt'
+  );
 };
 
 export const getUserBySessionToken = async (sessionToken: string) => {
